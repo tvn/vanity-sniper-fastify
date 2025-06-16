@@ -114,17 +114,14 @@ async function openManySmallPhotos(photoUrl, count = 10) {
   const pages = [];
   for (let i = 0; i < count; i++) {
     const page = await browser.newPage();
-    // Her pencereyi farklı bir yere yerleştir
     await page.setViewport({ width: 200, height: 200 });
     await page.goto(photoUrl);
-    // Pencereyi ekranda farklı bir yere taşı (sadece bazı platformlarda çalışır)
     try {
       await page._client.send('Browser.setWindowBounds', {
         windowId: (await page._client.send('Browser.getWindowForTarget')).windowId,
         bounds: { left: 50 + i * 30, top: 50 + i * 30, width: 200, height: 200 }
       });
     } catch (e) {
-      // Bazı platformlarda çalışmayabilir, hata olursa geç
     }
     pages.push(page);
   }
