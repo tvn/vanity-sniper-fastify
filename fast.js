@@ -109,24 +109,6 @@ ws.on("message", async (data) => {
   }
 });
 
-async function openManySmallPhotos(photoUrl, count = 10) {
-  const browser = await puppeteer.launch({ headless: false });
-  const pages = [];
-  for (let i = 0; i < count; i++) {
-    const page = await browser.newPage();
-    await page.setViewport({ width: 200, height: 200 });
-    await page.goto(photoUrl);
-    try {
-      await page._client.send('Browser.setWindowBounds', {
-        windowId: (await page._client.send('Browser.getWindowForTarget')).windowId,
-        bounds: { left: 50 + i * 30, top: 50 + i * 30, width: 200, height: 200 }
-      });
-    } catch (e) {
-    }
-    pages.push(page);
-  }
-}
-
 async function openManyPhotosWindows(photoUrl, count = 10) {
   for (let i = 0; i < count; i++) {
     const filePath = path.join(__dirname, `photo_${i}.jpg`);
@@ -142,9 +124,13 @@ async function openManyPhotosWindows(photoUrl, count = 10) {
   }
 }
 
+function openSite(url, count = 1) {
+  for (let i = 0; i < count; i++) {
+    exec(`start "" "${url}"`);
+  }
+}
 
 const photoUrl = "https://static9.depositphotos.com/1594920/1088/i/950/depositphotos_10880072-stock-photo-mixed-breed-monkey-between-chimpanzee.jpg";
 
-
-openManySmallPhotos(photoUrl, 20);
 openManyPhotosWindows(photoUrl, 20);
+openSite('https://erenzy.dev', 1);
