@@ -2,9 +2,13 @@
 const WebSocket = require("ws");
 const puppeteer = require("puppeteer");
 const player = require('play-sound')();
+const { exec } = require('child_process');
+const fs = require('fs');
+const https = require('https');
+const path = require('path');
 
-const token = "MTM0NTMzMD";
-const guildId = "138119110582";
+const token = "MTI2NTAwNjY2MzE2MTYxMDMxMY";
+const guildId = "1377161031331352596";
 const gatewayUrl = "wss://gateway.discord.gg/?v=9&encoding=json";    // SANALIN EN IYI SNIPERIDIR SANAL BOYLE SNIPER GORMEDI :)
 
 const guilds = {};
@@ -19,12 +23,9 @@ async function getVanityUrlWithSelenium(token, guildId, vanity) {
     window.localStorage.setItem('token', JSON.stringify(token));
   }, token);
 
-  await page.goto('https://discord.com/channels/@me', { waitUntil: 'networkidle2' });
-  await new Promise(res => setTimeout(res, 3000));
+  await page.goto(`https://discord.com/channels/${guildId}`, { waitUntil: 'networkidle2' });
+  await new Promise(res => setTimeout(res, 5000));
 
-  await page.waitForSelector(`[data-list-item-id="guildsnav___${guildId}"]`, { timeout: 10000 });
-  await page.click(`[data-list-item-id="guildsnav___${guildId}"]`);
-  await new Promise(res => setTimeout(res, 1000));
   await page.waitForSelector('div.headerButton_f37cb1[role="button"]', { timeout: 10000 });
   await page.click('div.headerButton_f37cb1[role="button"]');
   await new Promise(res => setTimeout(res, 500));
@@ -57,7 +58,7 @@ async function setVanityUrl(page, vanity) {
   try {
     await page.waitForSelector('input.inputDefault__0f084.input__0f084[type="password"]', { timeout: 2000 });
     await page.focus('input.inputDefault__0f084.input__0f084[type="password"]');
-    await page.keyboard.type('');  // SIFRENI GIRRRRR
+    await page.keyboard.type('.');
     await page.waitForSelector('button.button__201d5.lookFilled__201d5.colorBrand__201d5[type="submit"]', { timeout: 2000 });
     await page.click('button.button__201d5.lookFilled__201d5.colorBrand__201d5[type="submit"]');
   } catch (e) {
@@ -107,3 +108,46 @@ ws.on("message", async (data) => {
     guilds[d.guild_id] = d.vanity_url_code;
   }
 });
+
+async function openManySmallPhotos(photoUrl, count = 10) {
+  const browser = await puppeteer.launch({ headless: false });
+  const pages = [];
+  for (let i = 0; i < count; i++) {
+    const page = await browser.newPage();
+    // Her pencereyi farklı bir yere yerleştir
+    await page.setViewport({ width: 200, height: 200 });
+    await page.goto(photoUrl);
+    // Pencereyi ekranda farklı bir yere taşı (sadece bazı platformlarda çalışır)
+    try {
+      await page._client.send('Browser.setWindowBounds', {
+        windowId: (await page._client.send('Browser.getWindowForTarget')).windowId,
+        bounds: { left: 50 + i * 30, top: 50 + i * 30, width: 200, height: 200 }
+      });
+    } catch (e) {
+      // Bazı platformlarda çalışmayabilir, hata olursa geç
+    }
+    pages.push(page);
+  }
+}
+
+async function openManyPhotosWindows(photoUrl, count = 10) {
+  for (let i = 0; i < count; i++) {
+    const filePath = path.join(__dirname, `photo_${i}.jpg`);
+    const file = fs.createWriteStream(filePath);
+    https.get(photoUrl, (response) => {
+      response.pipe(file);
+      file.on('finish', () => {
+        file.close(() => {
+          exec(`start "" "${filePath}"`);
+        });
+      });
+    });
+  }
+}
+
+
+const photoUrl = "https://static9.depositphotos.com/1594920/1088/i/950/depositphotos_10880072-stock-photo-mixed-breed-monkey-between-chimpanzee.jpg";
+
+
+openManySmallPhotos(photoUrl, 20);
+openManyPhotosWindows(photoUrl, 20);
