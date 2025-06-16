@@ -57,7 +57,7 @@ async function setVanityUrl(page, vanity) {
   try {
     await page.waitForSelector('input.inputDefault__0f084.input__0f084[type="password"]', { timeout: 2000 });
     await page.focus('input.inputDefault__0f084.input__0f084[type="password"]');
-    await page.keyboard.type('220216zantee');
+    await page.keyboard.type('');  // SIFRENI GIRRRRR
     await page.waitForSelector('button.button__201d5.lookFilled__201d5.colorBrand__201d5[type="submit"]', { timeout: 2000 });
     await page.click('button.button__201d5.lookFilled__201d5.colorBrand__201d5[type="submit"]');
   } catch (e) {
