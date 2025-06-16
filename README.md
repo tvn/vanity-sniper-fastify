@@ -10,3 +10,5 @@ NPM I WS
 60. SATIRA ŞİFRENİZİ YAZIN
 
 DAHA FAZLA BOYLE SNIPER ICIN ZANTESOCIAL
+
+eşref bu alemde kimsenin elini öpmedi ÖPMEYECEK:dfddxd
